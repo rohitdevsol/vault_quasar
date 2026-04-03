@@ -1,5 +1,5 @@
 extern crate std;
-use quasar_svm::system_program;
+use quasar_svm::{ Account, system_program };
 use quasar_svm::{ Instruction, Pubkey, QuasarSvm };
 use solana_address::Address;
 
@@ -32,7 +32,13 @@ fn test_deposit() {
         &instruction,
         &[
             quasar_svm::token::create_keyed_system_account(&user, 10_000_000_000),
-            quasar_svm::token::create_keyed_system_account(&vault, 0),
+            Account {
+                address: vault,
+                lamports: 0,
+                data: vec![],
+                owner: crate::ID,
+                executable: false,
+            },
         ]
     );
 
@@ -54,7 +60,13 @@ fn test_withdraw() {
 
     let initial_accounts = vec![
         quasar_svm::token::create_keyed_system_account(&user, 10_000_000_000),
-        quasar_svm::token::create_keyed_system_account(&vault, 0)
+        Account {
+            address: vault,
+            lamports: 0,
+            data: vec![],
+            owner: crate::ID,
+            executable: false,
+        }
     ];
     let deposit_ix: Instruction = (DespositInstruction {
         signer: Address::from(user.to_bytes()),
@@ -112,7 +124,13 @@ fn test_wannabe_hacker() {
     // instruction bnalo
     let common_accounts = vec![
         quasar_svm::token::create_keyed_system_account(&user, 10_000_000_000),
-        quasar_svm::token::create_keyed_system_account(&vault, 0)
+        Account {
+            address: vault,
+            lamports: 0,
+            data: vec![],
+            owner: crate::ID,
+            executable: false,
+        }
     ];
 
     let deposit_ix: Instruction = (DespositInstruction {
@@ -142,4 +160,5 @@ fn test_wannabe_hacker() {
     // this needs to fail
 
     withdraw_result.assert_error(quasar_svm::ProgramError::Custom(3002));
+    eprintln!("{:#?}", withdraw_result.accounts);
 }
