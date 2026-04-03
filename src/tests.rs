@@ -1,11 +1,10 @@
 extern crate std;
+use quasar_svm::system_program;
 use quasar_svm::{ Instruction, Pubkey, QuasarSvm };
 use solana_address::Address;
 
 use quasar_vault_client::DespositInstruction;
 use quasar_vault_client::WithdrawInstruction;
-
-use crate::withdraw;
 
 fn setup() -> QuasarSvm {
     let elf = include_bytes!("../target/deploy/quasar_vault.so");
@@ -95,4 +94,52 @@ fn test_withdraw() {
     // eprintln!("User1 after deposit: {:#?}", user_after1);
     assert_eq!(vault_after1.lamports, 0);
     assert_eq!(user_after1.lamports, 10_000_000_000);
+}
+
+#[test]
+fn test_wannabe_hacker() {
+    let mut svm = setup();
+
+    // user create krlo
+    let user = Pubkey::new_unique();
+
+    // vault derive krlo seeds se
+    let (vault, _vault_bump) = Address::find_program_address(
+        &[b"vault", user.as_ref()],
+        &crate::ID
+    );
+
+    // instruction bnalo
+    let common_accounts = vec![
+        quasar_svm::token::create_keyed_system_account(&user, 10_000_000_000),
+        quasar_svm::token::create_keyed_system_account(&vault, 0)
+    ];
+
+    let deposit_ix: Instruction = (DespositInstruction {
+        amount: 1_000_000_000,
+        signer: user,
+        system_program: Address::from(system_program::ID.to_bytes()),
+        vault,
+    }).into();
+
+    let result = svm.process_instruction(&deposit_ix, &common_accounts);
+
+    result.assert_success();
+
+    // now ek doosra user tries to come and call the withdraw instruction by becoming a signer
+    let imposter = Pubkey::new_unique();
+    // it will reuse the vault
+    // it will just send the withdraw instruction
+
+    let withdraw_ix: Instruction = (WithdrawInstruction {
+        amount: 1_000_000_000,
+        signer: imposter,
+        system_program: Address::from(quasar_svm::system_program::ID.to_bytes()),
+        vault,
+    }).into();
+
+    let withdraw_result = svm.process_instruction(&withdraw_ix, &result.accounts);
+    // this needs to fail
+
+    withdraw_result.assert_error(quasar_svm::ProgramError::Custom(3002));
 }
