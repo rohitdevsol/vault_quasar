@@ -5,12 +5,11 @@ pub struct Withdraw<'info> {
     pub signer: &'info mut Signer,
     #[account(mut, seeds = [b"vault", signer], bump)]
     pub vault: &'info mut UncheckedAccount,
-    pub system_program: &'info Program<System>,
 }
 
 impl<'info> Withdraw<'info> {
     #[inline(always)]
-    pub fn withdraw(&self, amount: u64, _: [Seed<'_>; 3]) -> Result<(), ProgramError> {
+    pub fn withdraw(&self, amount: u64) -> Result<(), ProgramError> {
         // self.system_program.transfer(self.vault, self.signer, amount).invoke_signed(&seeds)?;
         // Ok(())
 

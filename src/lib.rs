@@ -16,7 +16,7 @@ mod quasar_vault {
 
     #[instruction(discriminator = 2)]
     pub fn withdraw(ctx: Ctx<Withdraw>, amount: u64) -> Result<(), ProgramError> {
-        ctx.accounts.withdraw(amount, ctx.bumps.vault_seeds())
+        ctx.accounts.withdraw(amount)
     }
 }
 

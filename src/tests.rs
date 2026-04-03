@@ -93,7 +93,6 @@ fn test_withdraw() {
         amount: 1_000_000_000,
         signer: user,
         vault,
-        system_program: Address::from(quasar_svm::system_program::ID.to_bytes()),
     }).into();
 
     let withdraw_results = svm.process_instruction(&withdraw_ix, &next_accounts);
@@ -152,7 +151,6 @@ fn test_wannabe_hacker() {
     let withdraw_ix: Instruction = (WithdrawInstruction {
         amount: 1_000_000_000,
         signer: imposter,
-        system_program: Address::from(quasar_svm::system_program::ID.to_bytes()),
         vault,
     }).into();
 
