@@ -91,8 +91,8 @@ fn test_withdraw() {
     let vault_after1 = withdraw_results.account(&Pubkey::from(vault)).unwrap();
     let user_after1 = withdraw_results.account(&Pubkey::from(user)).unwrap();
     // the balance in the vault should be 0
-    eprintln!("Vault1 after deposit: {:#?}", vault_after1);
-    eprintln!("User1 after deposit: {:#?}", user_after1);
+    // eprintln!("Vault1 after deposit: {:#?}", vault_after1);
+    // eprintln!("User1 after deposit: {:#?}", user_after1);
     assert_eq!(vault_after1.lamports, 0);
     assert_eq!(user_after1.lamports, 10_000_000_000);
 }
